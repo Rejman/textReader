@@ -1,5 +1,4 @@
 import tkinter as tk
-from PIL import Image, ImageTk
 
 class MainFrame(tk.Frame):
     WIDTH = 100
@@ -8,6 +7,7 @@ class MainFrame(tk.Frame):
         super().__init__(master)
         self.config(width=MainFrame.WIDTH, height=MainFrame.HEIGHT)
         self.create_widgets()
+
 
 
     def create_widgets(self):
@@ -63,4 +63,7 @@ class MainFrame(tk.Frame):
         self.menu_frame.grid(row=0, column=1, sticky=tk.E)
         self.text.grid(row=1, column=0, columnspan=2, padx=5)
         self.statusbar_frame.grid(row=2, sticky=tk.E)
+
+
+
 
