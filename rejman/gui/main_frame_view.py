@@ -1,5 +1,9 @@
+# -*- coding: utf-8 -*-
 import tkinter as tk
-
+from tkinter import filedialog as fd
+from pydub import AudioSegment
+import simpleaudio as sa
+#AudioSegment.converter = r"C:\\ffmpeg\\bin\\ffmpeg.exe"
 class MainFrame(tk.Frame):
     WIDTH = 100
     HEIGHT = 100
@@ -7,8 +11,6 @@ class MainFrame(tk.Frame):
         super().__init__(master)
         self.config(width=MainFrame.WIDTH, height=MainFrame.HEIGHT)
         self.create_widgets()
-
-
 
     def create_widgets(self):
         self.create_menu(pad_x=5, pad_y=5, space=0)
@@ -21,6 +23,11 @@ class MainFrame(tk.Frame):
         # text area for input data
         self.text = tk.Text(self)
         self.text.configure(font=(font_name, font_size))
+
+        #self.text.insert('1.0', "ś".encode('UTF-8'))
+        #self.text.insert('1.0', u"ś")
+
+
 
     def create_statusbar(self):
         # statusbar's frame
@@ -47,7 +54,7 @@ class MainFrame(tk.Frame):
         self.volume_scale.grid(row=0, column=0)
         # sound button
         self.sound_button = tk.Button(self.menu_frame)
-        self.sound_button.config(image=self.sound_png)
+        self.sound_button.config(image=self.sound_png, command=self.talk)
         self.sound_button.grid(row=0, column=1, padx=(pad_x,0), pady=pad_y)
         # clear button
         self.clear_button = tk.Button(self.menu_frame)
@@ -55,7 +62,7 @@ class MainFrame(tk.Frame):
         self.clear_button.grid(row=0, column=2, padx=space, pady=pad_y)
         # save button
         self.save_button = tk.Button(self.menu_frame)
-        self.save_button.config(image=self.save_png)
+        self.save_button.config(image=self.save_png, command=self.save_file)
         self.save_button.grid(row=0, column=3, padx=(0,pad_x), pady=pad_y)
 
     def set_layout(self):
@@ -64,6 +71,36 @@ class MainFrame(tk.Frame):
         self.text.grid(row=1, column=0, columnspan=2, padx=5)
         self.statusbar_frame.grid(row=2, sticky=tk.E)
 
+    def save_file(self):
+        filename = fd.asksaveasfilename(defaultextension='.wav',
+                                     filetypes=(('WAV files', '*.wav'),
+                                                ('All files', '*.*')))
+
+        # filetypes = (('MP3 files', '*.mp3'),
+        #              ('WAV files', '*.wav'),
+        #              ('All files', '*.*')))
+
+        if filename:
+            file_type = filename[-3:]
+            print(file_type)
+            self.file.export(filename, format=file_type)
 
 
+    def talk(self):
 
+        alfabet = "_abcdefghijklmnoprstwuyz"
+        data = {}
+        for letter in alfabet:
+            data[letter] = "sound/v1/"+letter+".wav"
+
+        value = self.text.get(1.0,tk.END)
+        value = value.replace(" ","_")
+
+        self.file = AudioSegment.from_wav(data["_"])
+        for letter in value[:-1]:
+            self.file+=AudioSegment.from_wav(data[letter])
+
+        self.file.export("temp.wav", format="wav")
+        wave_obj = sa.WaveObject.from_wave_file("temp.wav")
+        play_obj = wave_obj.play()
+        play_obj.wait_done()
