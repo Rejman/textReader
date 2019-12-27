@@ -58,7 +58,7 @@ class MainFrame(tk.Frame):
         self.sound_button.grid(row=0, column=1, padx=(pad_x,0), pady=pad_y)
         # clear button
         self.clear_button = tk.Button(self.menu_frame)
-        self.clear_button.config(image=self.clear_png)
+        self.clear_button.config(image=self.clear_png, command=self.clear)
         self.clear_button.grid(row=0, column=2, padx=space, pady=pad_y)
         # save button
         self.save_button = tk.Button(self.menu_frame)
@@ -66,26 +66,21 @@ class MainFrame(tk.Frame):
         self.save_button.grid(row=0, column=3, padx=(0,pad_x), pady=pad_y)
 
     def set_layout(self):
-
         self.menu_frame.grid(row=0, column=1, sticky=tk.E)
         self.text.grid(row=1, column=0, columnspan=2, padx=5)
         self.statusbar_frame.grid(row=2, sticky=tk.E)
 
     def save_file(self):
         filename = fd.asksaveasfilename(defaultextension='.wav',
-                                     filetypes=(('WAV files', '*.wav'),
-                                                ('All files', '*.*')))
-
-        # filetypes = (('MP3 files', '*.mp3'),
-        #              ('WAV files', '*.wav'),
-        #              ('All files', '*.*')))
-
+                                        filetypes=(('WAV files', '*.wav'), ('All files', '*.*')))
         if filename:
-            file_type = filename[-3:]
-            print(file_type)
+            #file_type = filename[-3:]
+            index = filename.rfind('.')+1
+            file_type = filename[index:]
             self.file.export(filename, format=file_type)
 
-
+    def clear(self):
+        self.text.delete(1.0, tk.END)
     def talk(self):
 
         alfabet = "_abcdefghijklmnoprstwuyz"
