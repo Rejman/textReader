@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import filedialog as fd
 from pydub import AudioSegment
 import simpleaudio as sa
-#AudioSegment.converter = r"C:\\ffmpeg\\bin\\ffmpeg.exe"
+
 class MainFrame(tk.Frame):
     WIDTH = 100
     HEIGHT = 100
@@ -48,9 +48,10 @@ class MainFrame(tk.Frame):
         self.menu_frame = tk.Frame(self)
 
         # volume scale
-        self.volume_scale = tk.Scale(self.menu_frame, from_=0, to=100, orient=tk.HORIZONTAL, showvalue=0, label="Volume:")
-        self.volume_scale.config(length=200, sliderlength=20, width=10)
-        self.volume_scale.set(50)
+        self.volume = tk.IntVar()
+        self.volume_scale = tk.Scale(self.menu_frame, from_=0, to=50, orient=tk.HORIZONTAL, showvalue=0, label="Volume:")
+        self.volume_scale.config(length=200, sliderlength=20, width=10, variable=self.volume)
+        self.volume_scale.set(25)
         self.volume_scale.grid(row=0, column=0)
         # sound button
         self.sound_button = tk.Button(self.menu_frame)
@@ -80,6 +81,7 @@ class MainFrame(tk.Frame):
             self.file.export(filename, format=file_type)
 
     def clear(self):
+        print(self.volume.get())
         self.text.delete(1.0, tk.END)
     def talk(self):
 
@@ -93,9 +95,12 @@ class MainFrame(tk.Frame):
 
         self.file = AudioSegment.from_wav(data["_"])
         for letter in value[:-1]:
-            self.file+=AudioSegment.from_wav(data[letter])
+            self.file += AudioSegment.from_wav(data[letter])
 
+        dB = self.volume.get() - 25
+        self.file = self.file[0:-1] + dB
         self.file.export("temp.wav", format="wav")
+
         wave_obj = sa.WaveObject.from_wave_file("temp.wav")
         play_obj = wave_obj.play()
         play_obj.wait_done()
