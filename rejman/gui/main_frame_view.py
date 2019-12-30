@@ -4,6 +4,9 @@ from tkinter import filedialog as fd
 from pydub import AudioSegment
 import simpleaudio as sa
 
+from controls.reader import Reader
+
+
 class MainFrame(tk.Frame):
     WIDTH = 100
     HEIGHT = 100
@@ -11,6 +14,7 @@ class MainFrame(tk.Frame):
         super().__init__(master)
         self.config(width=MainFrame.WIDTH, height=MainFrame.HEIGHT)
         self.create_widgets()
+        self.reader = Reader()
 
     def create_widgets(self):
         self.create_menu(pad_x=5, pad_y=5, space=0)
@@ -85,22 +89,12 @@ class MainFrame(tk.Frame):
         self.text.delete(1.0, tk.END)
     def talk(self):
 
-        alfabet = "_abcdefghijklmnoprstwuyz"
-        data = {}
-        for letter in alfabet:
-            data[letter] = "sound/v1/"+letter+".wav"
-
         value = self.text.get(1.0,tk.END)
         value = value.replace(" ","_")
 
-        self.file = AudioSegment.from_wav(data["_"])
-        for letter in value[:-1]:
-            self.file += AudioSegment.from_wav(data[letter])
+        self.reader.build_to_sound(value[:-1])
+        self.reader.save_in_temp()
 
-        dB = self.volume.get() - 25
-        self.file = self.file[0:-1] + dB
-        self.file.export("temp.wav", format="wav")
+        self.reader.set_volume(self.volume.get(), 25)
 
-        wave_obj = sa.WaveObject.from_wave_file("temp.wav")
-        play_obj = wave_obj.play()
-        play_obj.wait_done()
+        self.reader.play()
